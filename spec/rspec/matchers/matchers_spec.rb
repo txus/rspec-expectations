@@ -28,7 +28,7 @@ module RSpec
 
       before(:all) do
         path = File.expand_path("../../../../#{path}", __FILE__)
-        require File.join(path, 'lib/rspec/matchers.rb')
+        load File.join(path, 'lib/rspec/matchers.rb')
       end
 
       it "includes itself in Test::Unit::TestCase" do

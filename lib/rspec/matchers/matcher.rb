@@ -22,7 +22,7 @@ module RSpec
         end
       end
       
-      #Used internally by objects returns by +should+ and +should_not+.
+      #Used internally by +should+ and +should_not+.
       def matches?(actual)
         @actual = actual
         if @expected_exception
@@ -41,9 +41,27 @@ module RSpec
         end
       end
 
+      # Used internally by +should_not+
+      def does_not_match?(actual)
+        @actual = actual
+        @match_for_should_not_block ?
+          instance_exec(actual, &@match_for_should_not_block) :
+          !matches?(actual)
+      end
+
+      def define_method(name, &block) # :nodoc:
+        singleton_class.__send__(:define_method, name, &block)
+      end
+
       # See RSpec::Matchers
       def match(&block)
         @match_block = block
+      end
+      alias match_for_should match
+
+      # See RSpec::Matchers
+      def match_for_should_not(&block)
+        @match_for_should_not_block = block
       end
 
       # See RSpec::Matchers
@@ -110,8 +128,7 @@ module RSpec
         # cause features to fail and that will make users unhappy. So don't.
         orig_private_methods = private_methods
         yield
-        st = (class << self; self; end)
-        (private_methods - orig_private_methods).each {|m| st.__send__ :public, m}
+        (private_methods - orig_private_methods).each {|m| singleton_class.__send__ :public, m}
       end
 
       def cache_or_call_cached(key, &block)
@@ -134,6 +151,11 @@ module RSpec
         to_sentence(@expected)
       end
 
+      unless method_defined?(:singleton_class)
+        def singleton_class
+          class << self; self; end
+        end
+      end
     end
   end
 end
