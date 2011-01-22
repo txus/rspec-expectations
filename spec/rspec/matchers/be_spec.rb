@@ -1,6 +1,10 @@
 require 'spec_helper'
 
 describe "should be_predicate" do  
+  it "allows other undefined methods to raise errors as normal" do
+    expect { some_undefined_method }.to raise_error(NameError)
+  end
+
   it "passes when actual returns true for :predicate?" do
     actual = stub("actual", :happy? => true)
     actual.should be_happy
@@ -265,7 +269,7 @@ describe "should be_nil" do
   it "fails when actual is not nil" do
     lambda {
       :not_nil.should be_nil
-    }.should fail_with("expected nil, got :not_nil")
+    }.should fail_with(/^expected: nil/)
   end
 end
 
@@ -277,7 +281,7 @@ describe "should_not be_nil" do
   it "fails when actual is nil" do
     lambda {
       nil.should_not be_nil
-    }.should fail_with("expected not nil, got nil")
+    }.should fail_with(/^expected: not nil/)
   end
 end
 
@@ -287,7 +291,7 @@ describe "should be <" do
   end
 
   it "fails when < operator returns false" do
-    lambda { 3.should be < 3 }.should fail_with("expected < 3, got 3")
+    lambda { 3.should be < 3 }.should fail_with("expected: < 3\n     got:   3")
   end
 
   it "describes itself" do
@@ -302,7 +306,7 @@ describe "should be <=" do
   end
 
   it "fails when <= operator returns false" do
-    lambda { 3.should be <= 2 }.should fail_with("expected <= 2, got 3")
+    lambda { 3.should be <= 2 }.should fail_with("expected: <= 2\n     got:    3")
   end
 end
 
@@ -313,7 +317,7 @@ describe "should be >=" do
   end
 
   it "fails when >= operator returns false" do
-    lambda { 3.should be >= 4 }.should fail_with("expected >= 4, got 3")
+    lambda { 3.should be >= 4 }.should fail_with("expected: >= 4\n     got:    3")
   end
 end
 
@@ -323,7 +327,7 @@ describe "should be >" do
   end
 
   it "fails when > operator returns false" do
-    lambda { 3.should be > 4 }.should fail_with("expected > 4, got 3")
+    lambda { 3.should be > 4 }.should fail_with("expected: > 4\n     got:   3")
   end
 end
 
@@ -333,7 +337,7 @@ describe "should be ==" do
   end
 
   it "fails when == operator returns false" do
-    lambda { 3.should be == 4 }.should fail_with("expected == 4, got 3")
+    lambda { 3.should be == 4 }.should fail_with("expected: == 4\n     got:    3")
   end
 end
 
@@ -343,7 +347,7 @@ describe "should be ===" do
   end
 
   it "fails when === operator returns false" do
-    lambda { Hash.should be === "not a hash" }.should fail_with(%[expected === not a hash, got Hash])
+    lambda { Hash.should be === "not a hash" }.should fail_with(%[expected: === "not a hash"\n     got:     Hash])
   end
 end
 

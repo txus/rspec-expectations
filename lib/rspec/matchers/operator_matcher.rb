@@ -29,6 +29,15 @@ module RSpec
             eval_match(@actual, operator, expected)
           end
         end
+
+        negative_operator = operator.sub(/^=/, '!')
+        if negative_operator != operator && respond_to?(negative_operator)
+          define_method(negative_operator) do |expected|
+            opposite_should = ::RSpec::Matchers.last_should == :should ? :should_not : :should
+            raise "RSpec does not support `#{::RSpec::Matchers.last_should} #{negative_operator} expected`.  " +
+                  "Use `#{opposite_should} #{operator} expected` instead."
+          end
+        end
       end
 
       ['==', '===', '=~', '>', '>=', '<', '<='].each do |operator|
@@ -58,9 +67,9 @@ module RSpec
         if actual.__send__(operator, expected)
           true
         elsif ['==','===', '=~'].include?(operator)
-          fail_with_message("expected: #{expected.inspect},\n     got: #{actual.inspect} (using #{operator})") 
+          fail_with_message("expected: #{expected.inspect}\n     got: #{actual.inspect} (using #{operator})") 
         else
-          fail_with_message("expected: #{operator} #{expected.inspect},\n     got: #{operator.gsub(/./, ' ')} #{actual.inspect}")
+          fail_with_message("expected: #{operator} #{expected.inspect}\n     got: #{operator.gsub(/./, ' ')} #{actual.inspect}")
         end
       end
 
@@ -69,7 +78,7 @@ module RSpec
     class NegativeOperatorMatcher < OperatorMatcher #:nodoc:
       def __delegate_operator(actual, operator, expected)
         return false unless actual.__send__(operator, expected)
-        return fail_with_message("expected not: #{operator} #{expected.inspect},\n         got: #{operator.gsub(/./, ' ')} #{actual.inspect}")
+        return fail_with_message("expected not: #{operator} #{expected.inspect}\n         got: #{operator.gsub(/./, ' ')} #{actual.inspect}")
       end
 
     end

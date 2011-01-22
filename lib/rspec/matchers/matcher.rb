@@ -11,7 +11,9 @@ module RSpec
         @expected = expected
         @actual   = nil
         @diffable = false
-        @expected_exception, @rescued_exception = nil
+        @expected_exception, @rescued_exception = nil, nil
+        @match_for_should_not_block = nil
+
         @messages = {
           :description => lambda {"#{name_to_sentence}#{expected_to_sentence}"},
           :failure_message_for_should => lambda {|actual| "expected #{actual.inspect} to #{name_to_sentence}#{expected_to_sentence}"},
@@ -105,11 +107,11 @@ module RSpec
       
     private
 
-      def method_missing(name, *args, &block)
-        if $matcher_execution_context.respond_to?(name)
-          $matcher_execution_context.send name, *args, &block
+      def method_missing(method, *args, &block)
+        if $matcher_execution_context.respond_to?(method)
+          $matcher_execution_context.send method, *args, &block
         else
-          super(name, *args, &block)
+          super(method, *args, &block)
         end
       end
     

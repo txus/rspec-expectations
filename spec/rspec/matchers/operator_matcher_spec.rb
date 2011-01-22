@@ -15,10 +15,36 @@ describe "should ==" do
   
   it "fails when target.==(actual) returns false" do
     subject = "apple"
-    RSpec::Expectations.should_receive(:fail_with).with(%[expected: "orange",\n     got: "apple" (using ==)], "orange", "apple")
+    RSpec::Expectations.should_receive(:fail_with).with(%[expected: "orange"\n     got: "apple" (using ==)], "orange", "apple")
     subject.should == "orange"
   end
   
+end
+
+describe "unsupported operators", :if => RUBY_VERSION.to_f == 1.9 do
+  it "raises an appropriate error for should != expected" do
+    expect {
+      "apple".should != "pear"
+    }.to raise_error(/does not support `should != expected`.  Use `should_not == expected`/)
+  end
+
+  it "raises an appropriate error for should_not != expected" do
+    expect {
+      "apple".should_not != "pear"
+    }.to raise_error(/does not support `should_not != expected`.  Use `should == expected`/)
+  end
+
+  it "raises an appropriate error for should !~ expected" do
+    expect {
+      "apple".should !~ /regex/
+    }.to raise_error(/does not support `should !~ expected`.  Use `should_not =~ expected`/)
+  end
+
+  it "raises an appropriate error for should_not !~ expected" do
+    expect {
+      "apple".should_not !~ /regex/
+    }.to raise_error(/does not support `should_not !~ expected`.  Use `should =~ expected`/)
+  end
 end
 
 describe "should_not ==" do
@@ -36,7 +62,7 @@ describe "should_not ==" do
 
   it "fails when target.==(actual) returns false" do
     subject = "apple"
-    RSpec::Expectations.should_receive(:fail_with).with(%[expected not: == "apple",\n         got:    "apple"], "apple", "apple")
+    RSpec::Expectations.should_receive(:fail_with).with(%[expected not: == "apple"\n         got:    "apple"], "apple", "apple")
     subject.should_not == "apple"
   end
   
@@ -53,7 +79,7 @@ describe "should ===" do
   it "fails when target.===(actual) returns false" do
     subject = "apple"
     subject.should_receive(:===).with("orange").and_return(false)
-    RSpec::Expectations.should_receive(:fail_with).with(%[expected: "orange",\n     got: "apple" (using ===)], "orange", "apple")
+    RSpec::Expectations.should_receive(:fail_with).with(%[expected: "orange"\n     got: "apple" (using ===)], "orange", "apple")
     subject.should === "orange"
   end
   
@@ -70,7 +96,7 @@ describe "should_not ===" do
   it "fails when target.===(actual) returns false" do
     subject = "apple"
     subject.should_receive(:===).with("apple").and_return(true)
-    RSpec::Expectations.should_receive(:fail_with).with(%[expected not: === "apple",\n         got:     "apple"], "apple", "apple")
+    RSpec::Expectations.should_receive(:fail_with).with(%[expected not: === "apple"\n         got:     "apple"], "apple", "apple")
     subject.should_not === "apple"
   end
 
@@ -87,7 +113,7 @@ describe "should =~" do
   it "fails when target.=~(actual) returns false" do
     subject = "fu"
     subject.should_receive(:=~).with(/oo/).and_return(false)
-    RSpec::Expectations.should_receive(:fail_with).with(%[expected: /oo/,\n     got: "fu" (using =~)], /oo/, "fu")
+    RSpec::Expectations.should_receive(:fail_with).with(%[expected: /oo/\n     got: "fu" (using =~)], /oo/, "fu")
     subject.should =~ /oo/
   end
 
@@ -104,7 +130,7 @@ describe "should_not =~" do
   it "fails when target.=~(actual) returns false" do
     subject = "foo"
     subject.should_receive(:=~).with(/oo/).and_return(true)
-    RSpec::Expectations.should_receive(:fail_with).with(%[expected not: =~ /oo/,\n         got:    "foo"], /oo/, "foo")
+    RSpec::Expectations.should_receive(:fail_with).with(%[expected not: =~ /oo/\n         got:    "foo"], /oo/, "foo")
     subject.should_not =~ /oo/
   end
 
@@ -117,7 +143,7 @@ describe "should >" do
   end
 
   it "fails if > fails" do
-    RSpec::Expectations.should_receive(:fail_with).with(%[expected: > 5,\n     got:   4], 5, 4)
+    RSpec::Expectations.should_receive(:fail_with).with(%[expected: > 5\n     got:   4], 5, 4)
     4.should > 5
   end
 
@@ -131,7 +157,7 @@ describe "should >=" do
   end
 
   it "fails if > fails" do
-    RSpec::Expectations.should_receive(:fail_with).with(%[expected: >= 5,\n     got:    4], 5, 4)
+    RSpec::Expectations.should_receive(:fail_with).with(%[expected: >= 5\n     got:    4], 5, 4)
     4.should >= 5
   end
 
@@ -144,7 +170,7 @@ describe "should <" do
   end
 
   it "fails if > fails" do
-    RSpec::Expectations.should_receive(:fail_with).with(%[expected: < 3,\n     got:   4], 3, 4)
+    RSpec::Expectations.should_receive(:fail_with).with(%[expected: < 3\n     got:   4], 3, 4)
     4.should < 3
   end
 
@@ -158,7 +184,7 @@ describe "should <=" do
   end
 
   it "fails if > fails" do
-    RSpec::Expectations.should_receive(:fail_with).with(%[expected: <= 3,\n     got:    4], 3, 4)
+    RSpec::Expectations.should_receive(:fail_with).with(%[expected: <= 3\n     got:    4], 3, 4)
     4.should <= 3
   end
 

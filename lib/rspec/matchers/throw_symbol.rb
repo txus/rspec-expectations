@@ -19,42 +19,45 @@ module RSpec
                 throw :proc_did_not_throw_anything, :nothing_thrown
               end
             end
-            @caught_symbol = @expected_symbol unless @caught_arg == :nothing_thrown
+
+            if @caught_arg == :nothing_thrown
+              @caught_arg = nil
+            else
+              @caught_symbol = @expected_symbol
+            end
           end
 
         # Ruby 1.8 uses NameError with `symbol'
         # Ruby 1.9 uses ArgumentError with :symbol
         rescue NameError, ArgumentError => e
-          raise e unless e.message =~ /uncaught throw (`|\:)([a-zA-Z0-9_]*)(')?/
+          unless e.message =~ /uncaught throw (`|\:)([a-zA-Z0-9_]*)(')?/
+            other_exception = e
+            raise
+          end
           @caught_symbol = $2.to_sym
-
+        rescue => other_exception
+          raise
         ensure
-          if @expected_symbol.nil?
-            return !@caught_symbol.nil?
-          else
-            if @expected_arg.nil?
-              return @caught_symbol == @expected_symbol
+          unless other_exception
+            if @expected_symbol.nil?
+              return !@caught_symbol.nil?
             else
-              return (@caught_symbol == @expected_symbol) & (@caught_arg == @expected_arg)
+              if @expected_arg.nil?
+                return @caught_symbol == @expected_symbol
+              else
+                return (@caught_symbol == @expected_symbol) & (@caught_arg == @expected_arg)
+              end
             end
           end
         end
       end
 
       def failure_message_for_should
-        if @caught_symbol
-          "expected #{expected}, got #{@caught_symbol.inspect}"
-        else
-          "expected #{expected} but nothing was thrown"
-        end
+        "expected #{expected} to be thrown, got #{caught}"
       end
       
       def failure_message_for_should_not
-        if @expected_symbol
-          "expected #{expected} not to be thrown"
-        else
-          "expected no Symbol, got :#{@caught_symbol}"
-        end
+        "expected #{expected('no Symbol')}#{' not' if @expected_symbol} to be thrown, got #{caught}"
       end
       
       def description
@@ -62,15 +65,29 @@ module RSpec
       end
       
       private
-      
-        def expected
-          @expected_symbol.nil? ? "a Symbol" : "#{@expected_symbol.inspect}#{args}"
+
+        def expected(symbol_desc = 'a Symbol')
+          throw_description(@expected_symbol || symbol_desc, @expected_arg)
         end
-        
-        def args
-          @expected_arg.nil? ? "" : " with #{@expected_arg.inspect}"
+
+        def caught
+          throw_description(@caught_symbol || 'nothing', @caught_arg)
         end
-      
+
+        def throw_description(symbol, arg)
+          symbol_description = symbol.is_a?(String) ? symbol : symbol.inspect
+
+          arg_description = if arg
+            " with #{arg.inspect}"
+          elsif @expected_arg && @caught_symbol == @expected_symbol
+            " with no argument"
+          else
+            ""
+          end
+
+          symbol_description + arg_description
+        end
+
     end
  
     # :call-seq:
