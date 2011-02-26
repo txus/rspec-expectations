@@ -1,11 +1,20 @@
-## rspec-expectations release history (incomplete)
-
 ### dev
 
-[full changelog](http://github.com/rspec/rspec-expectations/compare/v2.4.0...master)
+[full changelog](http://github.com/rspec/rspec-expectations/compare/v2.5.0...master)
+
+* Bug fixes
+  * Removed non-ascii characters that were choking rcov (Geoffrey Byers)
+
+### 2.5.0 / 2011-02-05
+
+[full changelog](http://github.com/rspec/rspec-expectations/compare/v2.4.0...v2.5.0)
 
 * Enhancements
   * `should exist` works with `exist?` or `exists?` (Myron Marston)
+  * `expect { ... }.not_to do_something` (in addition to `to_not`)
+
+* Documentation
+  * improved docs for raise_error matcher (James Almond)
 
 ### 2.4.0 / 2011-01-02
 
